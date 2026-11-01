@@ -1,4 +1,25 @@
-export default function S1StudentclubLoginPage() {
+import { useState } from 'react';
+import { supabase } from '../supabaseClient';
+
+export default function StudentclubLoginPage() {
+   const [errorMsg, setErrorMsg] = useState('');
+   const [loading, setLoading] = useState(false);
+   const handleGoogleLogin = async () => {
+    setErrorMsg('');
+    setLoading(true);
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/onboarding` // Where to go after login
+      }
+    });
+
+    if (error) {
+      setErrorMsg(error.message);
+      setLoading(false);
+    }
+  };
   return (
     <div className="flex min-h-screen flex-col items-start bg-[#F6F4F5] w-full overflow-hidden">
       <div className="flex py-0 px-4 sm:px-14 justify-between items-center w-full h-24 overflow-hidden">
@@ -156,7 +177,7 @@ export default function S1StudentclubLoginPage() {
           </div>
           
           <div className="flex flex-col items-start gap-3.5 w-full overflow-hidden">
-            <div className="flex py-0 px-5 justify-between items-center rounded-lg bg-[#7A1F3D] w-full h-[52px] overflow-hidden">
+            <button onClick={handleGoogleLogin} disabled={loading} className="flex py-0 px-5 justify-between items-center rounded-lg bg-[#7A1F3D] hover:bg-[#5c162d] transition-colors w-full h-[52px] overflow-hidden cursor-pointer disabled:opacity-70">
               <svg
                 width="20"
                 height="20"
@@ -190,7 +211,7 @@ export default function S1StudentclubLoginPage() {
                   stroke="white"
                 />
               </svg>
-            </div>
+            </button>
             <p className="text-[#6B6468] font-inter text-xs leading-[1.6em] w-full text-center">
               You’ll be redirected to your university’s secure sign-in page.
             </p>
