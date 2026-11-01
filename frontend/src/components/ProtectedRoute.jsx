@@ -1,47 +1,55 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
-export default function ProtectedRoute({ children, allowedRoles }) {
-  const [profile, setProfile] = useState(null);
+export default function ProtectedRoute({ allowedRoles }) {
+  const [session, setSession] = useState(null);
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
         setLoading(false);
         return;
       }
+      
+      setSession(session);
 
-      const { data } = await supabase
+      // Fetch role (No account_status)
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('role, account_status')
-        .eq('profile_id', user.id)
+        .select('role')
+        .eq('profile_id', session.user.id)
         .single();
 
-      setProfile(data);
+      if (profile) {
+        setRole(profile.role);
+      }
+      
       setLoading(false);
     };
-    checkUser();
+
+    checkAuth();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  
-  // If no user, redirect to login
-  if (!profile) return <Navigate to="/login" />;
-
-  // If account is suspended, show an error or redirect
-  if (profile.account_status !== 'active') {
-    return <Navigate to="/account-suspended" />;
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F6F4F5]">
+        <div className="w-12 h-12 border-4 border-[#7A1F3D] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
-  // If the user's role is not in the allowed list, redirect to their respective dashboard
-  if (!allowedRoles.includes(profile.role)) {
-    if (profile.role === 'mpp_admin') return <Navigate to="/mpp-dashboard" />;
-    if (profile.role === 'club_representative') return <Navigate to="/club-dashboard" />;
-    return <Navigate to="/student-dashboard" />;
+  if (!session) return <Navigate to="/login" replace />;
+
+  if (allowedRoles && !allowedRoles.includes(role)) {
+    if (role === 'mpp_admin') return <Navigate to="/mpp-dashboard" replace />;
+    if (role === 'club_representative') return <Navigate to="/club-dashboard" replace />;
+    return <Navigate to="/student-dashboard" replace />;
   }
 
-  return children;
+  return <Outlet />;
 }
