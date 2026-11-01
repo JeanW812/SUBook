@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import ws from 'ws'; // 1. Import the ws package
+
 dotenv.config();
 
-// Use fallbacks so tests don't crash if .env is missing (e.g., in GitHub Actions)
-const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://zrznabvueccpkhhgepfc.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyem5hYnZ1ZWNjcGtoaGdlcGZjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzQzMjQxMCwiZXhwIjoyMTA5MDA4NDEwfQ.BeOr1HGzSxm1E6dTZcC8Cj5024FqqvxpkOLD9HATilM';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  realtime: { transport: ws } // 2. Explicitly set the WebSocket transport
+});
 
 // The Middleware Function
 export const requireMPPAdmin = async (req, res, next) => {
