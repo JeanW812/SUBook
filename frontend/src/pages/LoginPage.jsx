@@ -11,7 +11,7 @@ export default function StudentclubLoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/onboarding` // Where to go after login
+        redirectTo: `${window.location.origin}/auth/callback` // Where to go after login
       }
     });
 
@@ -262,5 +262,5 @@ export default function StudentclubLoginPage() {
         </div>
       </div>
     </div>
-  );
+  ); 
 }
