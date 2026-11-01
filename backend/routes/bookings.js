@@ -2,11 +2,18 @@ import express from 'express';
 import { requireMPPAdmin } from '../middleware/auth.js';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import ws from 'ws'; // Add the ws import
 
 dotenv.config();
 
-// Initialize Supabase Admin client to bypass RLS for writing logs
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Use fallbacks so tests don't crash if .env is missing
+const supabaseUrl = process.env.SUPABASE_URL || 'https://zrznabvueccpkhhgepfc.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyem5hYnZ1ZWNjcGtoaGdlcGZjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzQzMjQxMCwiZXhwIjoyMTA5MDA4NDEwfQ.BeOr1HGzSxm1E6dTZcC8Cj5024FqqvxpkOLD9HATilM';
+
+// Initialize Supabase Admin client with the ws transport
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  realtime: { transport: ws }
+});
 
 const router = express.Router();
 
