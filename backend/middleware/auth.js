@@ -2,8 +2,11 @@ import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// We use the SERVICE_ROLE key here because the backend needs to bypass RLS to check roles securely
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+// Use fallbacks so tests don't crash if .env is missing (e.g., in GitHub Actions)
+const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // The Middleware Function
 export const requireMPPAdmin = async (req, res, next) => {
@@ -38,7 +41,7 @@ export const requireMPPAdmin = async (req, res, next) => {
     }
 
     // 6. Success! Attach the user data to the request and move to the next function (the route)
-    req.user = user; 
+    req.user = user;
     next();
     
   } catch (err) {
