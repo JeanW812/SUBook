@@ -1,0 +1,38 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 1. Test & Build Frontend (Vite)
+    - name: Setup Node.js for Frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Run Frontend Tests
+      working-directory: ./frontend
+      run: npm run test -- --run
+    - name: Build Frontend (Vite)
+      working-directory: ./frontend
+      run: npm run build
+
+    # 2. Test Backend (Node.js)
+    - name: Install Backend Dependencies
+      working-directory: ./backend
+      run: npm ci
+    - name: Run Backend Tests
+      working-directory: ./backend
+      run: npm run test
