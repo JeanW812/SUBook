@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { Link } from 'react-router-dom'
 
 export default function StudentclubLoginPage() {
    const [errorMsg, setErrorMsg] = useState('');
@@ -54,9 +55,9 @@ export default function StudentclubLoginPage() {
               </clipPath>
             </defs>
           </svg>
-          <p className="text-[#6B6468] font-inter text-[13px] font-medium w-fit">
+          <Link to="/contact" className="text-[#6B6468] font-inter text-[13px] font-medium w-fit hover:underline">
             Need help?
-          </p>
+          </Link>
         </div>
       </div>
       
@@ -255,10 +256,12 @@ export default function StudentclubLoginPage() {
           SUBook · Bringing campus together
         </p>
         <div className="flex items-start gap-6 w-fit overflow-hidden">
-          <p className="text-[#6B6468] font-inter text-xs w-fit">Privacy</p>
-          <p className="text-[#6B6468] font-inter text-xs w-fit">
+          <Link to="/privacy" className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
+            Privacy
+          </Link>
+          <Link to="/terms"className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
             Terms of use
-          </p>
+          </Link>
         </div>
       </div>
     </div>

@@ -6,6 +6,9 @@ import AuthCallback from './pages/AuthCallback';
 import StudentDashboard from './pages/StudentDashboard';
 import MPPDashboard from './pages/MPPDashboard';
 import ClubDashboard from './pages/ClubDashboard';
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfUse from './pages/TermsOfUse'
+import Contact from './pages/Contact'
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* ONBOARDING (Any logged-in user) */}
         <Route element={<ProtectedRoute />}>
