@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import ws from 'ws';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,8 +9,16 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1Ni
 if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase env vars');
 }
+const supabase = createClient(
+  process.env.SUPABASE_URL, 
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    realtime: {
+      transport: ws,  // Key: provide WebSocket implementation for Node.js < 22
+    },
+  }
+);
 
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const requireMPPAdmin = async (req, res, next) => {
   try {
