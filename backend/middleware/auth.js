@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import ws from 'ws';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -7,26 +6,22 @@ const supabaseUrl = process.env.SUPABASE_URL || 'https://zrznabvueccpkhhgepfc.su
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyem5hYnZ1ZWNjcGtoaGdlcGZjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzQzMjQxMCwiZXhwIjoyMTA5MDA4NDEwfQ.BeOr1HGzSxm1E6dTZcC8Cj5024FqqvxpkOLD9HATilM';
 
 if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase env vars');
+  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars');
 }
-const supabase = createClient(
-  process.env.SUPABASE_URL, 
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-  {
-    realtime: {
-      transport: ws,  // Key: provide WebSocket implementation for Node.js < 22
-    },
-  }
-);
 
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const requireMPPAdmin = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: "Unauthorized: No token provided" });
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (error || !user) {
+      return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
