@@ -86,4 +86,55 @@ router.get('/venues', async (req, res) => {
   }
 });
 
+router.get('/venues/:venueId', async (req, res) => {
+  try {
+    if (!supabase) {
+      console.error('Supabase environment variables are missing');
+      return res.status(503).json({
+        success: false,
+        error: 'Supabase configuration is missing',
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('venues')
+      .select(`
+        venue_id,
+        venue_name,
+        capacity,
+        description,
+        hourly_rate,
+        hourly_deposit,
+        daily_rate,
+        daily_deposit,
+        venue_status
+      `)
+      .eq('venue_id', req.params.venueId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Supabase venue detail query error:', error.message);
+      return res.status(500).json({
+        success: false,
+        error: 'Unable to retrieve venue information',
+      });
+    }
+
+    if (!data) {
+      return res.status(404).json({
+        success: false,
+        error: 'Venue not found',
+      });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error('Venue detail API error:', error.message);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+});
+
 export default router;

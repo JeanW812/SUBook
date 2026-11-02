@@ -51,7 +51,7 @@ export default function VenueCard({ venue }) {
           ))}
         </div>
         <a
-          href={isAvailable ? `/availability?venue=${encodeURIComponent(venue.venue_id)}` : undefined}
+          href={isAvailable ? `/venues/${encodeURIComponent(venue.venue_id)}` : undefined}
           aria-disabled={!isAvailable}
           onClick={(event) => { if (!isAvailable) event.preventDefault(); }}
           className={`mt-auto flex h-[38px] items-center justify-center rounded-lg bg-[#7A1F3D] px-2 text-center text-[13px] font-semibold text-white ${isAvailable ? 'hover:bg-[#651830]' : 'pointer-events-none opacity-50'}`}

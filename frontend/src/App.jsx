@@ -7,6 +7,8 @@ import StudentDashboard from './pages/StudentDashboard';
 import MPPDashboard from './pages/MPPDashboard';
 import ClubDashboard from './pages/ClubDashboard';
 import VenueCatalogue from './pages/VenueCatalogue';
+import VenueDetails from './pages/VenueDetails';
+import AvailabilityPlaceholder from './pages/AvailabilityPlaceholder';
 
 function App() {
   return (
@@ -21,11 +23,12 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<Onboarding />} />
         </Route>
-<Route path="/venues" element={<VenueCatalogue />} />
         {/* STUDENT ROUTES ONLY */}
         <Route element={<ProtectedRoute allowedRoles={['student', 'club_representative']} />}>
           <Route path="/student-dashboard" element={<StudentDashboard />} />
-        
+          <Route path="/venues" element={<VenueCatalogue />} />
+          <Route path="/venues/:venueId" element={<VenueDetails />} />
+          <Route path="/venues/:venueId/availability" element={<AvailabilityPlaceholder />} />
         </Route>
 
         {/* CLUB REPRESENTATIVE ROUTES ONLY */}
