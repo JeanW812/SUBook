@@ -7,7 +7,7 @@ import ws from 'ws'; // Add the ws import
 dotenv.config();
 
 // Use fallbacks so tests don't crash if .env is missing
-const supabaseUrl = process.env.SUPABASE_URL || 'https://zrznabvueccpkhhgepfc.supabase.co';
+const supabaseUrl = (process.env.SUPABASE_URL || 'https://zrznabvueccpkhhgepfc.supabase.co').replace(/\/rest\/v1\/?$/, '');
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyem5hYnZ1ZWNjcGtoaGdlcGZjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzQzMjQxMCwiZXhwIjoyMTA5MDA4NDEwfQ.BeOr1HGzSxm1E6dTZcC8Cj5024FqqvxpkOLD9HATilM';
 
 // Initialize Supabase Admin client with the ws transport
