@@ -24,7 +24,7 @@ function App() {
           <Route path="/onboarding" element={<Onboarding />} />
         </Route>
         {/* STUDENT ROUTES ONLY */}
-        <Route element={<ProtectedRoute allowedRoles={['student', 'club_representative']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/venues" element={<VenueCatalogue />} />
           <Route path="/venues/:venueId" element={<VenueDetails />} />
