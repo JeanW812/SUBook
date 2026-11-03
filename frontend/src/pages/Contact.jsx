@@ -122,7 +122,7 @@ export default function Contact() {
         {/* Intro */}
         <section className="mb-8">
           <p className="text-gray-700 leading-relaxed">
-            The <strong>MPP Booking System</strong> is managed by the Majlis
+            The <strong>SUBook - Event and Venue Booking System</strong> is managed by the Majlis
             Perwakilan Pelajar UTM. If you're facing issues with login, bookings, or
             anything else, please contact us. Our team will get back to you as soon
             as possible.
