@@ -28,7 +28,9 @@ export default function AdminLoginPage() {
       {/* ── Header (same as student page) ── */}
       <div className="flex py-0 px-4 sm:px-14 justify-between items-center w-full h-24 overflow-hidden">
         <div className="flex items-center gap-4 w-fit overflow-hidden">
-          <p className="text-[#7A1F3D] font-inter text-2xl font-bold w-fit">SUBook</p>
+          <Link to="/login" className="text-[#7A1F3D] font-inter text-2xl font-bold w-fit hover:opacity-80 transition-opacity">
+  SUBook
+</Link>
           <p className="text-[#7A1F3D] font-inter text-[13px] w-fit hidden sm:block">
             Venue booking &amp; campus events
           </p>
