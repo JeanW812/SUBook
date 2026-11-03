@@ -6,21 +6,24 @@ export default function StudentclubLoginPage() {
    const [errorMsg, setErrorMsg] = useState('');
    const [loading, setLoading] = useState(false);
    const handleGoogleLogin = async () => {
-    setErrorMsg('');
-    setLoading(true);
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback` // Where to go after login
-      }
-    });
+  setErrorMsg('');
+  setLoading(true);
 
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
+  sessionStorage.setItem('intended_portal', 'student');
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?role=student`
     }
-  };
+  });
+
+  if (error) {
+    sessionStorage.removeItem('intended_portal');
+    setErrorMsg(error.message);
+    setLoading(false);
+  }
+};
   return (
     <div className="flex min-h-screen flex-col items-start bg-[#F6F4F5] w-full overflow-hidden">
       <div className="flex py-0 px-4 sm:px-14 justify-between items-center w-full h-24 overflow-hidden">
