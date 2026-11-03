@@ -23,12 +23,17 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/onboarding" element={<Onboarding />} />
         </Route>
-        {/* STUDENT ROUTES ONLY */}
-        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
+        {/* STUDENT AND CLUB REPRESENTATIVE VENUE BROWSING */}
+        <Route element={<ProtectedRoute allowedRoles={['student', 'club_representative']} />}>
           <Route path="/venues" element={<VenueCatalogue />} />
           <Route path="/venues/:venueId" element={<VenueDetails />} />
           <Route path="/venues/:venueId/availability" element={<AvailabilityPlaceholder />} />
+        </Route>
+
+        {/* STUDENT ROUTES ONLY */}
+        <Route element={<ProtectedRoute allowedRoles={['student']} />}>
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
+          
         </Route>
 
         {/* CLUB REPRESENTATIVE ROUTES ONLY */}
