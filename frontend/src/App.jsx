@@ -9,6 +9,8 @@ import ClubDashboard from './pages/ClubDashboard';
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfUse from './pages/TermsOfUse'
 import Contact from './pages/Contact'
+import AdminLoginPage from './pages/AdminLoginPage'
+import ClubRepLoginPage from './pages/ClubRepLoginPage'
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/login/admin" element={<AdminLoginPage />} />
+        <Route path="/login/club" element={<ClubRepLoginPage />} /> 
 
         {/* ONBOARDING (Any logged-in user) */}
         <Route element={<ProtectedRoute />}>

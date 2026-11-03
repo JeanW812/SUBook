@@ -61,7 +61,9 @@ export default function Onboarding() {
                         <path d="M12.8335 19.2498V16.4999C12.8335 16.0137 12.6404 15.5474 12.2965 15.2036C11.9527 14.8598 11.4863 14.6667 11 14.6667C10.5138 14.6667 10.0474 14.8598 9.70358 15.2036C9.35973 15.5474 9.16656 16.0137 9.16656 16.4999V19.2498M16.5005 11.0002H16.5097M16.5005 14.6667H16.5097M5.4996 11.0002H5.50877M5.4996 14.6667H5.50877M20.1674 6.41731C20.1674 6.17421 20.0709 5.94106 19.8989 5.76916C19.727 5.59726 19.4938 5.50069 19.2507 5.50069H17.4172C17.0425 5.50063 16.6768 5.38579 16.3694 5.17162L12.0479 2.16418C11.7405 1.94994 11.3749 1.835 11.0002 1.83484C10.6255 1.83468 10.2598 1.94929 9.95221 2.16326L5.6307 5.1707C5.32336 5.3852 4.95766 5.50036 4.58286 5.50069H2.74938C2.50625 5.50069 2.27307 5.59726 2.10115 5.76916C1.92923 5.94106 1.83264 6.17421 1.83264 6.41731V17.4168C1.83264 17.903 2.02581 18.3693 2.36966 18.7131C2.7135 19.0569 3.17985 19.25 3.66612 19.25H18.334C18.8202 19.25 19.2866 19.0569 19.6304 18.7131C19.9743 18.3693 20.1674 17.903 20.1674 17.4168V6.41731ZM12.8335 9.16693C12.8335 10.1794 12.0126 11.0002 11 11.0002C9.98744 11.0002 9.16656 10.1794 9.16656 9.16693C9.16656 8.15446 9.98744 7.33368 11 7.33368C12.0126 7.33368 12.8335 8.15446 12.8335 9.16693Z" strokeWidth="1.6" strokeLinecap="round" stroke="white"/>
                     </svg>
                 </div>
-                <p className="text-[#7A1F3D] font-inter text-2xl font-bold w-fit">SUBook</p>
+                <Link to="/login" className="text-[#7A1F3D] font-inter text-2xl font-bold w-fit hover:opacity-80 transition-opacity">
+  SUBook
+</Link>
                 <div className="bg-[#E3DEE0] w-px h-[22px] hidden sm:block"></div>
                 <p className="text-[#6B6468] font-inter text-[13px] w-fit hidden sm:block">Venue booking &amp; campus events</p>
             </div>
@@ -69,7 +71,9 @@ export default function Onboarding() {
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[17px] h-[17px] overflow-hidden relative ">
                     <path d="M6.43845 6.37458C6.605 5.90114 6.93372 5.50192 7.36641 5.24762C7.7991 4.99333 8.30782 4.90038 8.80247 4.98522C9.29713 5.07007 9.74579 5.32724 10.069 5.71119C10.3922 6.09514 10.5691 6.58109 10.5684 7.08297C10.5684 8.49975 8.44319 9.20814 8.44319 9.20814M8.49998 12.042H8.50706M15.5839 8.50004C15.5839 12.4124 12.4123 15.5839 8.49998 15.5839C4.58765 15.5839 1.41608 12.4124 1.41608 8.50004C1.41608 4.58771 4.58765 1.41614 8.49998 1.41614C12.4123 1.41614 15.5839 4.58771 15.5839 8.50004Z" strokeWidth="1.6" strokeLinecap="round" stroke="#7A1F3D"/>
                 </svg>
-                <p className="text-[#7A1F3D] font-inter text-sm font-medium w-fit">Need help?</p>
+                <Link to="/contact" className="text-[#6B6468] font-inter text-[13px] font-medium w-fit hover:underline">
+            Need help?
+          </Link>
             </div>
         </div>
 
@@ -165,8 +169,12 @@ export default function Onboarding() {
         <div className="flex flex-col sm:flex-row py-4 px-4 sm:px-14 justify-between items-center gap-3 w-full h-auto sm:h-[72px] overflow-hidden mt-auto">
             <p className="text-[#6B6468] font-inter text-xs w-fit">SUBook · Bringing campus together</p>
             <div className="flex items-start gap-6 w-fit overflow-hidden">
-                <p className="text-[#6B6468] font-inter text-xs w-fit">Privacy policy</p>
-                <p className="text-[#6B6468] font-inter text-xs w-fit">Terms of use</p>
+                <Link to="/privacy" className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
+            Privacy
+          </Link>
+          <Link to="/terms"className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
+            Terms of use
+          </Link>
             </div>
         </div>
     </div>
