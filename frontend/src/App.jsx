@@ -9,6 +9,7 @@ import ClubDashboard from './pages/ClubDashboard';
 import VenueCatalogue from './pages/VenueCatalogue';
 import VenueDetails from './pages/VenueDetails';
 import AvailabilityPlaceholder from './pages/AvailabilityPlaceholder';
+import BookingRequestPlaceholder from './pages/BookingRequestPlaceholder';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/venues" element={<VenueCatalogue />} />
           <Route path="/venues/:venueId" element={<VenueDetails />} />
           <Route path="/venues/:venueId/availability" element={<AvailabilityPlaceholder />} />
+          <Route path="/booking-request" element={<BookingRequestPlaceholder />} />
         </Route>
 
         {/* STUDENT ROUTES ONLY */}
