@@ -42,7 +42,7 @@ const navigate = useNavigate()
           </h2>
           <p className="text-gray-700 leading-relaxed mb-3">
             These Terms of Use ("Terms") govern your access to and use of the{' '}
-            <strong>SUB Event & Facility Booking System</strong> (the "Service"), operated by{' '}
+            <strong>SUBook - Event and Venue Booking System</strong> (the "Service"), operated by{' '}
             <strong>Majlis Perwakilan Pelajar UTM</strong> ("we", "us", "our").
           </p>
           <p className="text-gray-700 leading-relaxed">

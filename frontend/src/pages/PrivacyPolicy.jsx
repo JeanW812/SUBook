@@ -42,9 +42,9 @@ export default function PrivacyPolicy() {
             1. Introduction
           </h2>
           <p className="text-gray-700 leading-relaxed mb-3">
-            This Privacy Policy explains how <strong>SUBook Event & Facility Booking System</strong>{' '}
+            This Privacy Policy explains how <strong>SUBook - Event and Venue Booking System</strong>{' '}
             ("we", "us", "our") collects, uses, stores, and protects your personal
-            data when you use the <strong>SUB Event & Facility Booking System</strong> (the
+            data when you use the <strong>SUBook - Event and Venue Booking System</strong> (the
             "Service"), including any payment features processed via HitPay.
           </p>
           <p className="text-gray-700 leading-relaxed">
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
           <h2 className="text-xl font-semibold text-gray-900 mb-3">2. Who We Are</h2>
           <ul className="list-disc pl-6 space-y-1 text-gray-700">
             <li><strong>Organisation:</strong> Majlis Perwakilan Pelajar UTM</li>
-            <li><strong>Project:</strong> SUB Event & Facility Booking System</li>
+            <li><strong>Project:</strong> SUBook - Event and Venue Booking System</li>
             <li><strong>Privacy contact:</strong> mpp@utm.my</li>
             <li><strong>Address:</strong> Pusat Pentadbiran Universiti Teknologi Malaysia, Majlis Perwakilan Pelajar UTM, Bangunan Persatuan Pelajar (SUB), Universiti Teknologi Malaysia, 81310 Johor Bahru,  Johor</li>
           </ul>
