@@ -11,17 +11,24 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
 
   const handleGoogleLogin = async () => {
-    setErrorMsg('');
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback?role=admin` },
-    });
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
+  setErrorMsg('');
+  setLoading(true);
+
+  sessionStorage.setItem('intended_portal', 'admin');
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?role=admin`
     }
-  };
+  });
+
+  if (error) {
+    sessionStorage.removeItem('intended_portal');
+    setErrorMsg(error.message);
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen flex-col items-start bg-[#F6F4F5] w-full overflow-hidden">
