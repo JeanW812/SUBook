@@ -67,4 +67,50 @@ router.post('/approve-booking', requireMPPAdmin, async (req, res) => {
   }
 });
 
-export default router;
+router.post('/create-booking', async (req, res) => {
+  const { venueId, start_time, end_time } = req.body;
+  if (!venueId || !start_time || !end_time) {
+    return res.status(400).json({ error: 'venueId, start_time, end_time required' });
+  }
+  try {
+    if (!supabase) return res.status(503).json({ error: 'Supabase not configured' });
+    // Fetch venue config
+    const { data: venue, error: venueError } = await supabase
+      .from('venues')
+      .select('is_shared, max_concurrent_bookings')
+      .eq('venue_id', venueId)
+      .maybeSingle();
+    if (venueError) throw venueError;
+    if (!venue) return res.status(404).json({ error: 'Venue not found' });
+    // Count overlapping active bookings
+    const { data: overlapping, error: overlapError } = await supabase
+      .from('bookings')
+      .select('booking_id')
+      .eq('venue_id', venueId)
+      .gt('end_time', start_time)
+      .lt('start_time', end_time)
+      .in('status', ACTIVE_BOOKING_STATUSES);
+    if (overlapError) throw overlapError;
+    const count = overlapping.length;
+    if (venue.is_shared) {
+      const max = venue.max_concurrent_bookings || 1;
+      if (count >= max) {
+        return res.status(409).json({ error: 'Venue capacity reached for the requested time slot' });
+      }
+    } else {
+      if (count > 0) {
+        return res.status(409).json({ error: 'Venue already booked for the requested time slot' });
+      }
+    }
+    // Insert booking atomically (Supabase uses POSTGRES, we rely on row-level lock via implicit transaction)
+    const { data: newBooking, error: insertError } = await supabase
+      .from('bookings')
+      .insert({ venue_id: venueId, start_time, end_time, status: 'confirmed' });
+    if (insertError) throw insertError;
+    return res.status(201).json({ success: true, booking: newBooking[0] });
+  } catch (e) {
+    console.error('Create booking error:', e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
