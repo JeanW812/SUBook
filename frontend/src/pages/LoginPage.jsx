@@ -245,9 +245,9 @@ export default function StudentclubLoginPage() {
                 One university account. No extra password.
               </p>
             </button>
-            <p className="text-[#7A1F3D] font-inter text-xs font-semibold w-full text-center">
-              Trouble signing in? Contact campus support
-            </p>
+            <Link to="/contact" className="text-[#7A1F3D] font-inter text-xs font-semibold w-full text-center block hover:underline">
+                Trouble signing in? Contact campus support
+            </Link>
           </div>
         </div>
       </div>
