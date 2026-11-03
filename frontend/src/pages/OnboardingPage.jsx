@@ -69,7 +69,9 @@ export default function Onboarding() {
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[17px] h-[17px] overflow-hidden relative ">
                     <path d="M6.43845 6.37458C6.605 5.90114 6.93372 5.50192 7.36641 5.24762C7.7991 4.99333 8.30782 4.90038 8.80247 4.98522C9.29713 5.07007 9.74579 5.32724 10.069 5.71119C10.3922 6.09514 10.5691 6.58109 10.5684 7.08297C10.5684 8.49975 8.44319 9.20814 8.44319 9.20814M8.49998 12.042H8.50706M15.5839 8.50004C15.5839 12.4124 12.4123 15.5839 8.49998 15.5839C4.58765 15.5839 1.41608 12.4124 1.41608 8.50004C1.41608 4.58771 4.58765 1.41614 8.49998 1.41614C12.4123 1.41614 15.5839 4.58771 15.5839 8.50004Z" strokeWidth="1.6" strokeLinecap="round" stroke="#7A1F3D"/>
                 </svg>
-                <p className="text-[#7A1F3D] font-inter text-sm font-medium w-fit">Need help?</p>
+                <Link to="/contact" className="text-[#6B6468] font-inter text-[13px] font-medium w-fit hover:underline">
+            Need help?
+          </Link>
             </div>
         </div>
 
@@ -165,8 +167,12 @@ export default function Onboarding() {
         <div className="flex flex-col sm:flex-row py-4 px-4 sm:px-14 justify-between items-center gap-3 w-full h-auto sm:h-[72px] overflow-hidden mt-auto">
             <p className="text-[#6B6468] font-inter text-xs w-fit">SUBook · Bringing campus together</p>
             <div className="flex items-start gap-6 w-fit overflow-hidden">
-                <p className="text-[#6B6468] font-inter text-xs w-fit">Privacy policy</p>
-                <p className="text-[#6B6468] font-inter text-xs w-fit">Terms of use</p>
+                <Link to="/privacy" className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
+            Privacy
+          </Link>
+          <Link to="/terms"className="text-[#6B6468] font-inter text-xs w-fit hover:underline">
+            Terms of use
+          </Link>
             </div>
         </div>
     </div>

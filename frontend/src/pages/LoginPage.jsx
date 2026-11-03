@@ -55,7 +55,7 @@ export default function StudentclubLoginPage() {
               </clipPath>
             </defs>
           </svg>
-          <Link to="/contact" className="text-[#6B6468] font-inter text-[13px] font-medium w-fit hover:underline">
+          <Link to="/contact" className="text-[#7A1F3D] font-inter text-[13px] font-medium w-fit hover:underline">
             Need help?
           </Link>
         </div>
@@ -218,37 +218,30 @@ export default function StudentclubLoginPage() {
             </p>
           </div>
           <div className="flex pt-5 flex-col items-start gap-4 border-t border-t-[#E3DEE0] w-full overflow-hidden">
-            <button className="cursor-pointer text-nowrap flex justify-center items-center gap-2 w-full overflow-hidden">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-3.5 h-3.5 overflow-hidden relative "
-              >
-                <g clipPath="url(#clip0_104_260)">
-                  <path
-                    d="M4.08333 5.83324V4.0831C4.08333 3.30949 4.39062 2.56756 4.93761 2.02054C5.48459 1.47351 6.22645 1.1662 7 1.1662C7.77355 1.1662 8.51541 1.47351 9.06239 2.02054C9.60938 2.56756 9.91667 3.30949 9.91667 4.0831V5.83324M4.08333 5.83324H2.91667C2.27233 5.83324 1.75 6.35562 1.75 7V11.667C1.75 12.3114 2.27233 12.8338 2.91667 12.8338H11.0833C11.7277 12.8338 12.25 12.3114 12.25 11.667V7C12.25 6.35562 11.7277 5.83324 11.0833 5.83324H9.91667M4.08333 5.83324H9.91667M7.58333 9.33352C7.58333 9.65571 7.32217 9.9169 7 9.9169C6.67783 9.9169 6.41667 9.65571 6.41667 9.33352C6.41667 9.01133 6.67783 8.75014 7 8.75014C7.32217 8.75014 7.58333 9.01133 7.58333 9.33352Z"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    stroke="#6B6468"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_104_260">
-                    <rect width="14" height="14" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <p className="text-[#6B6468] font-inter text-xs w-fit">
-                One university account. No extra password.
-              </p>
-            </button>
-            <Link to="/contact" className="text-[#7A1F3D] font-inter text-xs font-semibold w-full text-center block hover:underline">
-                Trouble signing in? Contact campus support
-            </Link>
-          </div>
+  <button className="cursor-pointer text-nowrap flex justify-center items-center gap-2 w-full overflow-hidden">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5">
+      <path d="M4.08333 5.83324V4.0831C4.08333 3.30949 4.39062 2.56756 4.93761 2.02054C5.48459 1.47351 6.22645 1.1662 7 1.1662C7.77355 1.1662 8.51541 1.47351 9.06239 2.02054C9.60938 2.56756 9.91667 3.30949 9.91667 4.0831V5.83324M4.08333 5.83324H2.91667C2.27233 5.83324 1.75 6.35562 1.75 7V11.667C1.75 12.3114 2.27233 12.8338 2.91667 12.8338H11.0833C11.7277 12.8338 12.25 12.3114 12.25 11.667V7C12.25 6.35562 11.7277 5.83324 11.0833 5.83324H9.91667M4.08333 5.83324H9.91667" strokeWidth="1.6" strokeLinecap="round" stroke="#6B6468" />
+    </svg>
+    <p className="text-[#6B6468] font-inter text-xs w-fit">One university account. No extra password.</p>
+  </button>
+
+  {/* ── NEW: role switch links ── */}
+  <div className="flex flex-col items-center gap-1.5 w-full">
+    <p className="text-[#6B6468] font-inter text-xs">Sign in as a different role?</p>
+    <div className="flex items-center gap-4">
+      <Link to="/login/admin" className="text-[#7A1F3D] font-inter text-xs font-semibold hover:underline">
+         👉 Admin login
+      </Link>
+      <Link to="/login/club" className="text-[#7A1F3D] font-inter text-xs font-semibold hover:underline">
+        👉 Club representative login
+      </Link>
+    </div>
+  </div>
+
+  <Link to="/contact" className="text-[#7A1F3D] font-inter text-xs font-semibold w-full text-center block hover:underline">
+    Trouble signing in? Contact campus support
+  </Link>
+</div>
         </div>
       </div>
       <div className="flex py-0 px-14 justify-between items-center w-full h-20 overflow-hidden">
