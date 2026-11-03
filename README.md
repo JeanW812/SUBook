@@ -1,4 +1,4 @@
-# 🏛️ SUB Event & Facility Booking System
+# 🏛️ SUBook - Event and Venue Booking System
 
 <p align="center">
   A centralized platform for university venue booking and campus event management.
