@@ -8,25 +8,24 @@ export default function ClubRepLoginPage() {
   const [clubCode, setClubCode] = useState('');
 
   const handleGoogleLogin = async () => {
-    setErrorMsg('');
-    setLoading(true);
+  setErrorMsg('');
+  setLoading(true);
 
-    if (clubCode) {
-      sessionStorage.setItem('pending_club_code', clubCode);
+  sessionStorage.setItem('intended_portal', 'club_rep');
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback?role=club_rep`
     }
+  });
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?role=club_rep`
-      }
-    });
-
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
-    }
-  };
+  if (error) {
+    sessionStorage.removeItem('intended_portal');
+    setErrorMsg(error.message);
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex min-h-screen flex-col items-start bg-[#F6F4F5] w-full overflow-hidden">
