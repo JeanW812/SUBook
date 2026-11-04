@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import ProfileModal from '../components/ProfileModal';
@@ -50,8 +50,23 @@ export default function StudentFAQ() {
   const [openId, setOpenId] = useState(null);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Added Mobile State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Ref to handle click outside
+  const navRef = useRef(null);
+
+  // Click outside listener
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const toggleFAQ = (id) => {
     if (openId === id) {
@@ -123,7 +138,7 @@ export default function StudentFAQ() {
       <div className="absolute right-[-100px] top-[50px] w-[400px] h-[400px] bg-[#DB6D6F] rounded-full opacity-10 blur-3xl pointer-events-none"></div>
 
       {/* RESPONSIVE NAVBAR */}
-      <header className="w-full bg-white border-b border-[#E3DEE0] h-16 flex items-center justify-between px-6 md:px-12 shrink-0 relative z-50">
+      <header className="w-full bg-white border-b border-[#E3DEE0] h-16 flex items-center justify-between px-6 md:px-12 shrink-0 relative z-50" ref={navRef}>
         
         <div className="flex items-center gap-4 md:gap-24">
           
@@ -174,8 +189,8 @@ export default function StudentFAQ() {
               {activeDropdown === 'help' && (
                 <div className="absolute top-14 left-0 w-48 bg-white border border-[#E3DEE0] rounded-lg shadow-lg py-1 flex flex-col">
                   <button onClick={() => { setActiveDropdown(null); }} className="text-left px-4 py-3 hover:bg-[#FAF3F6] text-[#7A1F3D] font-bold">FAQ</button>
-                  <a href="https://forms.gle/YOUR_LOST_ITEM_LINK" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Lost Item</a>
-                  <a href="https://forms.gle/YOUR_FEEDBACK_LINK" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Feedback</a>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLScKPJLpauxqEzx6vavNyKgUUw9oVKgYx7L5wcDPizUSjgvgig/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Lost Item</a>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE1J0a6KQTBnpRSbUyvReN9HSOOXqBgGY2fvxkH32g2ULMWA/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Feedback</a>
                 </div>
               )}
             </div>
@@ -219,8 +234,8 @@ export default function StudentFAQ() {
           <div className="px-6 py-2 border-b border-gray-100">
             <p className="text-xs text-gray-400 font-bold uppercase mb-1">Help & Support</p>
             <button onClick={() => { setIsMobileMenuOpen(false); setActiveDropdown(null); }} className="block py-1 text-[#1F1A1C] font-semibold">FAQ</button>
-            <a href="https://forms.gle/YOUR_LOST_ITEM_LINK" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Lost Item</a>
-            <a href="https://forms.gle/YOUR_FEEDBACK_LINK" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Feedback</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScKPJLpauxqEzx6vavNyKgUUw9oVKgYx7L5wcDPizUSjgvgig/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Lost Item</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE1J0a6KQTBnpRSbUyvReN9HSOOXqBgGY2fvxkH32g2ULMWA/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Feedback</a>
           </div>
         </div>
       )}

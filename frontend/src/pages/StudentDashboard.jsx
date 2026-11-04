@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../supabaseClient';
 import EventCard from '../components/EventCard';
 import ProfileModal from '../components/ProfileModal';
@@ -11,9 +11,10 @@ export default function StudentDashboard() {
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  
-  // State for Mobile Menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Ref to handle click outside
+  const navRef = useRef(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -29,6 +30,18 @@ export default function StudentDashboard() {
     };
 
     fetchEvents();
+  }, []);
+
+  // Click outside listener
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
@@ -47,13 +60,11 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-[#F6F4F5] flex flex-col">
       
-      {/* 1. TOP NAVBAR */}
-      <header className="w-full bg-white border-b border-[#E3DEE0] h-16 flex items-center justify-between px-6 md:px-12 shrink-0 relative z-50">
+      {/* 1. TOP NAVBAR (Wrap in ref) */}
+      <header className="w-full bg-white border-b border-[#E3DEE0] h-16 flex items-center justify-between px-6 md:px-12 shrink-0 relative z-50" ref={navRef}>
         
-        {/* Left Side: Logo & Menus */}
         <div className="flex items-center gap-4 md:gap-24">
           
-          {/* Mobile Hamburger Icon */}
           <button 
             className="md:hidden text-[#1F1A1C] p-2 -ml-2" 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -63,7 +74,6 @@ export default function StudentDashboard() {
 
           <h1 onClick={() => navigate('/student-dashboard')} className="text-[#7A1F3D] text-[22px] font-bold cursor-pointer">SUBook</h1>
           
-          {/* DESKTOP NAVIGATION */}
           <nav className="hidden md:flex gap-16 text-sm font-semibold text-[#1F1A1C]">
             <a href="#" className="text-[#7A1F3D] py-4">Home</a>
             
@@ -100,15 +110,14 @@ export default function StudentDashboard() {
               {activeDropdown === 'help' && (
                 <div className="absolute top-14 left-0 w-48 bg-white border border-[#E3DEE0] rounded-lg shadow-lg py-1 flex flex-col">
                   <button onClick={() => { navigate('/student-faq'); setActiveDropdown(null); }} className="text-left px-4 py-3 hover:bg-[#FAF3F6]">FAQ</button>
-                  <a href="https://forms.gle/YOUR_LOST_ITEM_LINK" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Lost Item</a>
-                  <a href="https://forms.gle/YOUR_FEEDBACK_LINK" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Feedback</a>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLScKPJLpauxqEzx6vavNyKgUUw9oVKgYx7L5wcDPizUSjgvgig/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Lost Item</a>
+                  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE1J0a6KQTBnpRSbUyvReN9HSOOXqBgGY2fvxkH32g2ULMWA/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="px-4 py-3 hover:bg-[#FAF3F6]">Feedback</a>
                 </div>
               )}
             </div>
           </nav>
         </div>
 
-        {/* Right Side: Role Dropdown */}
         <div className="relative">
           <button onClick={() => toggleDropdown('role')} className="flex items-center gap-2 bg-[#7A1F3D] text-white px-4 md:px-5 py-2 rounded-lg text-xs md:text-sm font-semibold">
             <span>Student</span>
@@ -145,8 +154,8 @@ export default function StudentDashboard() {
           <div className="px-6 py-2 border-b border-gray-100">
             <p className="text-xs text-gray-400 font-bold uppercase mb-1">Help & Support</p>
             <button onClick={() => { setIsMobileMenuOpen(false); navigate('/student-faq'); }} className="block py-1 text-[#1F1A1C] font-semibold">FAQ</button>
-            <a href="https://forms.gle/YOUR_LOST_ITEM_LINK" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Lost Item</a>
-            <a href="https://forms.gle/YOUR_FEEDBACK_LINK" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Feedback</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScKPJLpauxqEzx6vavNyKgUUw9oVKgYx7L5wcDPizUSjgvgig/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Lost Item</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeE1J0a6KQTBnpRSbUyvReN9HSOOXqBgGY2fvxkH32g2ULMWA/viewform?usp=publish-editor" target="_blank" rel="noreferrer" className="block py-1 text-[#1F1A1C] font-semibold">Feedback</a>
           </div>
         </div>
       )}

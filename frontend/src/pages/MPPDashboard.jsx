@@ -155,7 +155,6 @@ export default function MPPDashboard() {
             <a href="#" className="px-6 py-4 text-sm hover:bg-[#5E1730] transition-colors">Venue Management</a>
             <a href="#" className="px-6 py-4 text-sm hover:bg-[#5E1730] transition-colors">Transaction History</a>
             <a href="#" className="px-6 py-4 text-sm hover:bg-[#5E1730] transition-colors">Reports & Analytics</a>
-            <button onClick={() => navigate('/mpp-faq')} className="text-left px-6 py-4 text-sm hover:bg-[#5E1730] transition-colors">FAQ</button>
           </nav>
         </div>
 
