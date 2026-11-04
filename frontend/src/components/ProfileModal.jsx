@@ -150,7 +150,7 @@ export default function ProfileModal({ isOpen, onClose }) {
     try {
       let finalAvatarUrl = localCustomAvatar;
 
-      // 1. Upload image if a new one was selected/taken
+      // 1. Upload new image if selected
       if (fileToUpload) {
         const fileExt = fileToUpload.name.split('.').pop();
         const fileName = `${profile.profile_id}-${Math.random()}.${fileExt}`;
@@ -164,12 +164,11 @@ export default function ProfileModal({ isOpen, onClose }) {
         const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
         finalAvatarUrl = data.publicUrl;
         
-        // We update the local state so if they hit save again, it doesn't re-upload the same file
         setLocalCustomAvatar(finalAvatarUrl);
         setFileToUpload(null);
       }
 
-      // 2. Update Database
+      // 2. Update database for ALL roles (Student, Club, MPP)
       const updates = {
         full_name: fullName,
         phone_no: phoneNo ? `+60${phoneNo}` : null,
@@ -177,6 +176,7 @@ export default function ProfileModal({ isOpen, onClose }) {
         hide_google_pic: localHideGooglePic
       };
 
+      // Only update matric_no if the user is a student
       if (profile.role === 'student') {
         updates.matric_no = matricNo;
       }
@@ -188,7 +188,6 @@ export default function ProfileModal({ isOpen, onClose }) {
 
       if (updateError) throw updateError;
 
-      // 3. Show Success Message (Does NOT close the modal)
       setStatusMessage('Profile updated successfully!');
       setProfile({ ...profile, ...updates });
 
@@ -202,6 +201,7 @@ export default function ProfileModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const isClub = profile?.role === 'club_representative';
+  const isMPP = profile?.role === 'mpp_admin';
   
   let displayAvatar = null;
   if (localCustomAvatar) {
@@ -224,24 +224,15 @@ export default function ProfileModal({ isOpen, onClose }) {
               <div className="text-red-500 font-semibold mb-4">{cameraError}</div>
             ) : (
               <div className="relative w-full max-w-md aspect-video bg-black rounded-xl overflow-hidden mb-6">
-                <video 
-                  ref={videoRef} 
-                  autoPlay 
-                  playsInline 
-                  className="w-full h-full object-cover transform -scale-x-100" 
-                />
+                <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover transform -scale-x-100" />
                 <canvas ref={canvasRef} className="hidden" />
               </div>
             )}
 
             <div className="flex gap-4">
-              <button onClick={stopCamera} className="px-6 py-2 border border-gray-400 rounded-lg hover:bg-gray-100 font-semibold">
-                Cancel
-              </button>
+              <button onClick={stopCamera} className="px-6 py-2 border border-gray-400 rounded-lg hover:bg-gray-100 font-semibold">Cancel</button>
               {!cameraError && (
-                <button onClick={capturePhoto} className="px-6 py-2 bg-[#7A1F3D] text-white rounded-lg hover:bg-[#5c162d] font-semibold">
-                  Capture Photo
-                </button>
+                <button onClick={capturePhoto} className="px-6 py-2 bg-[#7A1F3D] text-white rounded-lg hover:bg-[#5c162d] font-semibold">Capture Photo</button>
               )}
             </div>
           </div>
@@ -282,8 +273,9 @@ export default function ProfileModal({ isOpen, onClose }) {
 
                 <div>
                   <h3 className="text-2xl font-semibold text-black">{profile.full_name || 'User Name'}</h3>
-                  <p className="text-sm font-light text-gray-600 mt-1">{isClub ? 'Club Representative' : 'Student'}</p>
-                  <p className="text-sm font-light text-gray-600">{profile.profile_id}</p>
+                  <p className="text-sm font-light text-gray-600 mt-1">
+                    {isClub ? 'Club Representative' : isMPP ? 'MPP Admin' : 'Student'}
+                  </p>
                 </div>
               </div>
 
@@ -355,12 +347,14 @@ export default function ProfileModal({ isOpen, onClose }) {
               </div>
 
               <div className="flex flex-col gap-8">
-                {!isClub && (
+                {/* Matric No only for Students */}
+                {profile.role === 'student' && (
                   <div className="flex flex-col gap-2">
                     <label className="text-xl font-medium text-black">Matric Number</label>
                     <input type="text" value={matricNo} onChange={(e) => setMatricNo(e.target.value)} placeholder="e.g. A24KM0512" className="w-full border border-gray-400 rounded-[10px] px-4 py-3 text-xl focus:outline-none focus:border-[#7A1F3D]" />
                   </div>
                 )}
+                
                 <div className="flex flex-col gap-2">
                   <label className="text-xl font-medium text-black">Email Address</label>
                   <input type="email" value={email} disabled className="w-full border border-gray-400 rounded-[10px] px-4 py-3 text-xl bg-gray-50 text-gray-500 cursor-not-allowed" />
