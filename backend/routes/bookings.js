@@ -64,7 +64,7 @@ function malaysiaParts(date) {
 
 // Validate one-hour slots between 8 AM and midnight.
 // Multiple consecutive hours are supported.
-function validateBookingTime(startValue, endValue) {
+function validateBookingTime(startValue, endValue, bookingMode = 'hourly') {
   const start = new Date(startValue);
   const end = new Date(endValue);
 
@@ -82,12 +82,8 @@ function validateBookingTime(startValue, endValue) {
   const durationHours =
     (end.getTime() - start.getTime()) / 3600000;
 
-  if (
-    !Number.isInteger(durationHours) ||
-    durationHours < 1 ||
-    durationHours > 16
-  ) {
-    return 'Duration must be 1 to 16 whole hours';
+  if (!Number.isInteger(durationHours) || durationHours < 1) {
+    return 'Duration must be in whole hours';
   }
 
   const startLocal = malaysiaParts(start);
@@ -102,8 +98,23 @@ function validateBookingTime(startValue, endValue) {
     return 'Slots must use whole hours starting from 8 AM';
   }
 
-  // Enforce a continuous booking within one
-  // Malaysia operating day, ending by midnight.
+  if (bookingMode === 'whole-day') {
+    if (
+      durationHours < 16 ||
+      (durationHours - 16) % 24 !== 0 ||
+      endLocal.hour !== 0
+    ) {
+      return 'Whole-day bookings must cover complete operating days';
+    }
+
+    return null;
+  }
+
+  if (durationHours > 16) {
+    return 'Duration must be 1 to 16 whole hours';
+  }
+
+  // Enforce a continuous booking within one Malaysia operating day.
   const midnight = new Date(
     start.getTime() +
     (24 - startLocal.hour) * 3600000
@@ -186,7 +197,15 @@ router.post(
         expected_attendees,
         start_time,
         end_time,
+        booking_mode = 'hourly',
       } = req.body || {};
+
+      if (booking_mode !== 'hourly' && booking_mode !== 'whole-day') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid booking mode',
+        });
+      }
 
       if (
         !isUUID(venueId) ||
@@ -216,7 +235,8 @@ router.post(
 
       const timeError = validateBookingTime(
         start_time,
-        end_time
+        end_time,
+        booking_mode
       );
 
       if (timeError) {
@@ -245,6 +265,8 @@ router.post(
             venue_status,
             hourly_rate,
             hourly_deposit,
+            daily_rate,
+            daily_deposit,
             is_shared,
             max_concurrent_bookings
           `)
@@ -278,14 +300,17 @@ router.post(
         (new Date(end_time) - new Date(start_time)) /
         3600000;
 
-      // Assumption: hourly rate applies for each hour,
-      // hourly deposit is charged once per booking.
-      // Confirm against the agreed pricing policy.
-      const quotedRate =
-        Number(venue.hourly_rate) * durationHours;
+      const bookingDays = booking_mode === 'whole-day'
+        ? 1 + ((durationHours - 16) / 24)
+        : 1;
+      const quotedRate = booking_mode === 'whole-day'
+        ? Number(venue.daily_rate) * bookingDays
+        : Number(venue.hourly_rate) * durationHours;
 
       const quotedDeposit =
-        Number(venue.hourly_deposit);
+        Number(booking_mode === 'whole-day'
+          ? venue.daily_deposit * bookingDays
+          : venue.hourly_deposit);
 
       if (
         !Number.isFinite(quotedRate) ||

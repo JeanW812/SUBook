@@ -135,13 +135,14 @@ export default function AvailabilityPlaceholder() {
   const [availabilitySlots, setAvailabilitySlots] = useState([]);
 
   const [month, setMonth] = useState(() => {
-    const now = new Date();
     const localToday = todayKey();
     const [year, monthNumber] = localToday.split('-').map(Number);
     return new Date(year, monthNumber - 1, 1);
   });
 
   const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [wholeDay, setWholeDay] = useState(false);
 
   // IMPORTANT:
   // Use an array of selected slots instead of one selectedSlot.
@@ -179,6 +180,7 @@ export default function AvailabilityPlaceholder() {
     setLoading(true);
     setError('');
     setSelectedRange([]);
+    setSelectedDates([]);
     setAvailabilitySlots([]);
 
     fetch(
@@ -266,6 +268,26 @@ export default function AvailabilityPlaceholder() {
 
     return slotsForDate(selectedDate);
   }, [selectedDate, venue, slotStatusByStart]);
+
+  const getSlotsForDates = (dates) =>
+    dates.flatMap((date) => slotsForDate(date));
+
+  const dateKeysBetween = (start, end) => {
+    const dates = [];
+    const cursor = new Date(`${start}T00:00:00Z`);
+    const last = new Date(`${end}T00:00:00Z`);
+
+    while (cursor.getTime() <= last.getTime()) {
+      dates.push(cursor.toISOString().slice(0, 10));
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    return dates;
+  };
+
+  const isWholeDayAvailable = (date) =>
+    dateStatus(date) === 'available' &&
+    slotsForDate(date).every((slot) => !slot.unavailable && !slot.reserved);
 
   // ========================================
   // CALENDAR DATE STATUS
@@ -363,10 +385,56 @@ export default function AvailabilityPlaceholder() {
       return;
     }
 
+    if (wholeDay) {
+      if (selectedDates.length === 0 || selectedDates.length > 1) {
+        if (!isWholeDayAvailable(date)) {
+          setError('Whole-day bookings require every time slot to be available.');
+          return;
+        }
+
+        setError('');
+        setSelectedDate(date);
+        setSelectedDates([date]);
+        setSelectedRange(getSlotsForDates([date]));
+        return;
+      }
+
+      const startDate = selectedDates[0];
+      if (date === startDate) {
+        setSelectedDates([]);
+        setSelectedRange([]);
+        return;
+      }
+
+      const dates = dateKeysBetween(
+        date < startDate ? date : startDate,
+        date < startDate ? startDate : date
+      );
+
+      if (!dates.every(isWholeDayAvailable)) {
+        setError('Every date in a whole-day booking must have all time slots available.');
+        return;
+      }
+
+      setError('');
+      setSelectedDate(dates[0]);
+      setSelectedDates(dates);
+      setSelectedRange(getSlotsForDates(dates));
+      return;
+    }
+
     setSelectedDate(date);
+    setSelectedDates([date]);
 
     // Clear selection whenever the user chooses a date.
     setSelectedRange([]);
+  };
+
+  const toggleWholeDay = () => {
+    setWholeDay((current) => !current);
+    setSelectedDates([]);
+    setSelectedRange([]);
+    setError('');
   };
 
   const moveMonth = (offset) => {
@@ -379,6 +447,7 @@ export default function AvailabilityPlaceholder() {
     if (monthKey(next) >= minimumMonth) {
       setMonth(next);
       setSelectedDate('');
+      setSelectedDates([]);
       setSelectedRange([]);
     }
   };
@@ -392,11 +461,15 @@ export default function AvailabilityPlaceholder() {
     selectedRange[selectedRange.length - 1] || null;
 
   const selectedDateLabel = selectedDate
-    ? SHORT_DATE_FORMATTER.format(parseDateKey(selectedDate))
+    ? selectedDates.length > 1
+      ? `${SHORT_DATE_FORMATTER.format(parseDateKey(selectedDates[0]))} – ${SHORT_DATE_FORMATTER.format(parseDateKey(selectedDates[selectedDates.length - 1]))}`
+      : SHORT_DATE_FORMATTER.format(parseDateKey(selectedDate))
     : '—';
 
   const selectedTimeLabel =
-    rangeStart && rangeEnd
+    wholeDay && selectedDates.length > 0
+      ? 'Whole day'
+      : rangeStart && rangeEnd
       ? `${formatHour(rangeStart.startHour)} – ${formatHour(rangeEnd.endHour)}`
       : '—';
 
@@ -407,8 +480,17 @@ export default function AvailabilityPlaceholder() {
       : 0;
 
   const hourlyRate = Number(venue?.hourly_rate || 0);
+  const dailyRate = Number(venue?.daily_rate || 0);
 
-  const totalRate = hourlyRate * durationHours;
+  const totalRate = wholeDay
+    ? dailyRate * selectedDates.length
+    : hourlyRate * durationHours;
+  const depositRate = Number(
+    wholeDay ? venue?.daily_deposit : venue?.hourly_deposit
+  );
+  const totalDeposit = wholeDay
+    ? depositRate * selectedDates.length
+    : depositRate;
 
   const estimatedRate = durationHours
     ? `RM${totalRate.toFixed(2)}`
@@ -420,16 +502,13 @@ export default function AvailabilityPlaceholder() {
     !error &&
     selectedDate &&
     selectedRange.length > 0 &&
+    (wholeDay ? selectedDates.length > 0 : Boolean(selectedDate)) &&
     selectedRange.every((slot) => {
-      const currentSlot = selectedSlots.find(
+      const currentSlot = slotsForDate(slot.date).find(
         (item) => item.id === slot.id
       );
 
-      return (
-        currentSlot &&
-        !currentSlot.unavailable &&
-        !currentSlot.reserved
-      );
+      return currentSlot && !currentSlot.unavailable && !currentSlot.reserved;
     });
 
   // ========================================
@@ -489,6 +568,8 @@ export default function AvailabilityPlaceholder() {
         startTime: rangeStart.start.toISOString(),
         endTime: rangeEnd.end.toISOString(),
         duration: String(durationHours),
+        bookingMode: wholeDay ? 'whole-day' : 'hourly',
+        days: String(wholeDay ? selectedDates.length : 1),
       });
 
       navigate(`/booking-request?${params.toString()}`);
@@ -571,7 +652,7 @@ export default function AvailabilityPlaceholder() {
 
             <p className="mt-1 text-sm text-[#6B6468]">
               Check colour indicators, then choose available
-              consecutive time slots.
+              consecutive time slots or whole days.
             </p>
 
             <div className="mt-7 grid gap-6 xl:grid-cols-[520px_300px_295px]">
@@ -615,7 +696,9 @@ export default function AvailabilityPlaceholder() {
                 <div className="mt-2 grid grid-cols-7 gap-1.5">
                   {calendarDays.map((date, index) => {
                     const status = dateStatus(date);
-                    const selected = date === selectedDate;
+                    const selected = wholeDay
+                      ? selectedDates.includes(date)
+                      : date === selectedDate;
 
                     return (
                       <button
@@ -656,13 +739,28 @@ export default function AvailabilityPlaceholder() {
                     : ''}
                 </h2>
 
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-lg border border-[#E3DEE0] bg-white p-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={wholeDay}
+                    onChange={toggleWholeDay}
+                    className="mt-0.5 h-4 w-4 accent-[#7A1F3D]"
+                  />
+                  <span>
+                    <span className="block font-semibold text-[#1F1A1C]">Book whole day</span>
+                    <span className="mt-1 block text-xs text-[#6B6468]">
+                      Uses the daily rate. Select a start date, then another date to book consecutive whole days.
+                    </span>
+                  </span>
+                </label>
+
                 {!selectedDate && (
                   <p className="mt-4 text-sm text-[#6B6468]">
                     Select a date to view time slots.
                   </p>
                 )}
 
-                {selectedDate && (
+                {selectedDate && !wholeDay && (
                   <div className="mt-4 space-y-2.5">
                     {selectedSlots.map((slot) => {
                       const isSelected = selectedRange.some(
@@ -733,7 +831,7 @@ export default function AvailabilityPlaceholder() {
 
                   <p>
                     Date: {selectedDate
-                      ? `${selectedDateLabel} ${selectedDate.slice(0, 4)}`
+                      ? `${selectedDateLabel}${selectedDates.length === 1 ? ` ${selectedDate.slice(0, 4)}` : ''}`
                       : '—'}
                   </p>
 
@@ -743,15 +841,19 @@ export default function AvailabilityPlaceholder() {
 
                   <p>
                     Duration:{' '}
-                    {durationHours
-                      ? `${durationHours} hour${durationHours === 1 ? '' : 's'}`
+                    {wholeDay
+                      ? selectedDates.length
+                        ? `${selectedDates.length} day${selectedDates.length === 1 ? '' : 's'}`
+                        : '—'
+                      : durationHours
+                        ? `${durationHours} hour${durationHours === 1 ? '' : 's'}`
                       : '—'}
                   </p>
 
                   <p>
-                    Hourly rate:{' '}
-                    {venue.hourly_rate != null
-                      ? `RM${Number(venue.hourly_rate).toFixed(2)}`
+                    {wholeDay ? 'Daily rate: ' : 'Hourly rate: '}
+                    {(wholeDay ? venue.daily_rate : venue.hourly_rate) != null
+                      ? `RM${Number(wholeDay ? venue.daily_rate : venue.hourly_rate).toFixed(2)}`
                       : '—'}
                   </p>
 
@@ -760,9 +862,9 @@ export default function AvailabilityPlaceholder() {
                   </p>
 
                   <p>
-                    Deposit:{' '}
-                    {venue.hourly_deposit != null
-                      ? `RM${Number(venue.hourly_deposit).toFixed(2)}`
+                    {wholeDay ? 'Daily deposit: ' : 'Deposit: '}
+                    {(wholeDay ? venue.daily_deposit : venue.hourly_deposit) != null
+                      ? `RM${totalDeposit.toFixed(2)}`
                       : '—'}
                   </p>
                 </div>
@@ -778,8 +880,9 @@ export default function AvailabilityPlaceholder() {
 
                 {selectedRange.length > 0 && (
                   <p className="mt-3 text-center text-xs text-[#6B6468]">
-                    {selectedRange.length} consecutive
-                    hour{selectedRange.length === 1 ? '' : 's'} selected
+                    {wholeDay
+                      ? `${selectedDates.length} whole day${selectedDates.length === 1 ? '' : 's'} selected`
+                      : `${selectedRange.length} consecutive hour${selectedRange.length === 1 ? '' : 's'} selected`}
                   </p>
                 )}
               </aside>
