@@ -13,7 +13,6 @@ export default function StudentDashboard() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Ref to handle click outside
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -32,7 +31,6 @@ export default function StudentDashboard() {
     fetchEvents();
   }, []);
 
-  // Click outside listener
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navRef.current && !navRef.current.contains(event.target)) {
@@ -60,7 +58,7 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-[#F6F4F5] flex flex-col">
       
-      {/* 1. TOP NAVBAR (Wrap in ref) */}
+      {/* 1. TOP NAVBAR */}
       <header className="w-full bg-white border-b border-[#E3DEE0] h-16 flex items-center justify-between px-6 md:px-12 shrink-0 relative z-50" ref={navRef}>
         
         <div className="flex items-center gap-4 md:gap-24">
@@ -84,7 +82,8 @@ export default function StudentDashboard() {
               </button>
               {activeDropdown === 'venue' && (
                 <div className="absolute top-14 left-0 w-48 bg-white border border-[#E3DEE0] rounded-lg shadow-lg py-1 flex flex-col">
-                  <a href="#" className="px-4 py-3 hover:bg-[#FAF3F6]">Book Venue</a>
+                  {/* CHANGED TO /venues */}
+                  <button onClick={() => { navigate('/venues'); setActiveDropdown(null); }} className="text-left px-4 py-3 hover:bg-[#FAF3F6]">Book Venue</button>
                   <a href="#" className="px-4 py-3 hover:bg-[#FAF3F6]">Booking History</a>
                 </div>
               )}
@@ -142,7 +141,8 @@ export default function StudentDashboard() {
           
           <div className="px-6 py-2 border-b border-gray-100">
             <p className="text-xs text-gray-400 font-bold uppercase mb-1">Venue & Booking</p>
-            <a href="#" className="block py-1 text-[#1F1A1C] font-semibold">Book Venue</a>
+            {/* CHANGED TO /venues */}
+            <button onClick={() => { setIsMobileMenuOpen(false); navigate('/venues'); }} className="block w-full text-left py-1 text-[#1F1A1C] font-semibold">Book Venue</button>
             <a href="#" className="block py-1 text-[#1F1A1C] font-semibold">Booking History</a>
           </div>
 
@@ -170,7 +170,11 @@ export default function StudentDashboard() {
             One centralized platform for UTM students, clubs and societies.
           </p>
           <div className="flex flex-wrap gap-4 mt-4">
-            <button className="bg-[#F2B705] text-[#1F1A1C] font-semibold text-[13px] w-[160px] py-3 rounded-lg hover:bg-yellow-500 transition-colors flex justify-center items-center">
+            {/* CHANGED TO /venues */}
+            <button 
+              onClick={() => navigate('/venues')}
+              className="bg-[#F2B705] text-[#1F1A1C] font-semibold text-[13px] w-[160px] py-3 rounded-lg hover:bg-yellow-500 transition-colors flex justify-center items-center"
+            >
               Book Venue
             </button>
             <button className="border border-white text-white font-semibold text-[13px] w-[160px] py-3 rounded-lg hover:bg-white/10 transition-colors flex justify-center items-center">
