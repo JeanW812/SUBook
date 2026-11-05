@@ -15,6 +15,9 @@ import TermsOfUse from './pages/TermsOfUse'
 import Contact from './pages/Contact'
 import AdminLoginPage from './pages/AdminLoginPage'
 import ClubRepLoginPage from './pages/ClubRepLoginPage'
+import StudentFAQPage from './pages/StudentFAQ'; 
+import ClubFAQPage from './pages/ClubFAQ';
+
 
 function App() {
   return (
@@ -45,12 +48,13 @@ function App() {
         {/* STUDENT ROUTES ONLY */}
         <Route element={<ProtectedRoute allowedRoles={['student']} />}>
           <Route path="/student-dashboard" element={<StudentDashboard />} />
-
+          <Route path="/student-faq" element={<StudentFAQPage />} />
         </Route>
 
         {/* CLUB REPRESENTATIVE ROUTES ONLY */}
         <Route element={<ProtectedRoute allowedRoles={['club_representative']} />}>
           <Route path="/club-dashboard" element={<ClubDashboard />} />
+          <Route path="/club-faq" element={<ClubFAQPage />} />
         </Route>
 
         {/* MPP ADMIN ROUTES ONLY */}
