@@ -10,25 +10,22 @@ export default function ProtectedRoute({ allowedRoles }) {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         setLoading(false);
         return;
       }
-      
+
       setSession(session);
 
-      // Fetch role (No account_status)
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('profile_id', session.user.id)
         .single();
 
-      if (profile) {
-        setRole(profile.role);
-      }
-      
+      if (profile) setRole(profile.role);
+
       setLoading(false);
     };
 
@@ -45,10 +42,9 @@ export default function ProtectedRoute({ allowedRoles }) {
 
   if (!session) return <Navigate to="/login" replace />;
 
+  // Role mismatch → visible failure (NOT silent redirect to own dashboard)
   if (allowedRoles && !allowedRoles.includes(role)) {
-    if (role === 'mpp_admin') return <Navigate to="/mpp-dashboard" replace />;
-    if (role === 'club_representative') return <Navigate to="/club-dashboard" replace />;
-    return <Navigate to="/student-dashboard" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

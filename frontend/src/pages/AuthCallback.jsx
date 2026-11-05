@@ -3,19 +3,23 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 const PORTAL_RULES = {
-  student: {
-    expectedRole: 'student',
-    dashboard: '/student-dashboard',
-  },
-  admin: {
-    expectedRole: 'mpp_admin',
-    dashboard: '/mpp-dashboard',
-  },
-  club_rep: {
-    expectedRole: 'club_representative',
-    dashboard: '/club-dashboard',
-  },
+  student:  { expectedRole: 'student' },
+  admin:    { expectedRole: 'mpp_admin' },
+  club_rep: { expectedRole: 'club_representative' },
 };
+
+const PORTAL_LABEL = {
+  student: 'Student',
+  admin: 'Admin (MPP)',
+  club_rep: 'Club Representative',
+};
+
+function roleLabel(role) {
+  if (role === 'mpp_admin') return 'Admin (MPP)';
+  if (role === 'club_representative') return 'Club Representative';
+  if (role === 'student') return 'Student';
+  return role;
+}
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -29,164 +33,128 @@ export default function AuthCallback() {
 
     const run = async () => {
       try {
-        // STEP 1: Get authenticated session
-        const {
-          data: { session },
-          error: authError,
-        } = await supabase.auth.getSession();
-
-        if (authError || !session) {
-          setError(
-            authError?.message || 'No active session found. Please log in again.'
-          );
-          return;
+        // STEP 1: Get authenticated session (retry for fresh OAuth)
+        let session = null;
+        for (let i = 0; i < 5; i++) {
+          const { data, error: authError } = await supabase.auth.getSession();
+          if (authError) throw new Error(authError.message);
+          if (data.session) { session = data.session; break; }
+          await new Promise((r) => setTimeout(r, 200));
         }
+        if (!session) throw new Error('No active session found.');
 
         const user = session.user;
 
-        // STEP 2: Identify selected login portal
-        const portalParam = searchParams.get('role');
-        const rule = PORTAL_RULES[portalParam];
+        // STEP 2: Resolve intended portal (URL → sessionStorage fallback)
+        const portalParam =
+          searchParams.get('role') || sessionStorage.getItem('intended_portal');
+        sessionStorage.removeItem('intended_portal');
 
+        const rule = PORTAL_RULES[portalParam];
         if (!rule) {
-          setError('Invalid login portal. Please return to the login page.');
-          await supabase.auth.signOut();
-          return;
+          throw new Error(
+            'No login portal was selected. Please go back and choose a portal.'
+          );
         }
 
         setStatus('Checking your profile...');
 
-        // STEP 3: Retrieve actual account role
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('matric_no, role')
-          .eq('profile_id', user.id)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Profile fetch error:', profileError);
-          setError('Unable to retrieve your account information. Please try again.');
-          return;
+        // STEP 3: Retrieve profile (retry for trigger lag)
+        let profile = null;
+        for (let i = 0; i < 5 && !profile; i++) {
+          const { data, error: profileError } = await supabase
+            .from('profiles')
+            .select('matric_no, role')
+            .eq('profile_id', user.id)
+            .maybeSingle();
+          if (profileError) throw new Error(profileError.message);
+          profile = data;
+          if (!profile) await new Promise((r) => setTimeout(r, 300));
         }
 
-        // STEP 4: Check whether profile exists
+        // STEP 4: Create profile if trigger didn't (new users)
         if (!profile) {
-
-          // Only students can self-register
-          if (portalParam !== 'student') {
-            setStatus('Access denied');
-
-            setError(
-              'No registered account found. Only students can self-register. Please contact your administrator.'
-            );
-
-            await supabase.auth.signOut();
-            return;
-          }
-
-          // Create a new student profile
-          // Only use this if your database trigger does NOT already create profiles.
-          setStatus('Creating your student profile...');
-
-          const { error: createError } = await supabase
+          setStatus('Creating your profile...');
+          const { data: created, error: createError } = await supabase
             .from('profiles')
-            .insert({
-              profile_id: user.id,
-              google_id: user.user_metadata?.sub || user.id,
-              full_name:
-                user.user_metadata?.full_name ||
-                user.user_metadata?.name ||
-                'New Student',
-              email: user.email,
-              role: 'student',
-            });
+            .upsert(
+              {
+                profile_id: user.id,
+                google_id: user.user_metadata?.sub || user.id,
+                full_name: user.user_metadata?.full_name || 'New User',
+                email: user.email,
+                role: 'student',
+              },
+              { onConflict: 'profile_id' }
+            )
+            .select('matric_no, role')
+            .single();
 
           if (createError) {
-            console.error('Profile creation error:', createError);
-            setError('Could not create your student profile. Please try again.');
-            return;
+            console.error('Failed to create profile:', createError);
+            throw new Error('We could not set up your profile. Please try again.');
           }
-
-          setStatus('Redirecting to onboarding...');
-          navigate('/onboarding', { replace: true });
-          return;
+          profile = created;
         }
 
-        // STEP 5: STRICT ROLE-PORTAL VALIDATION
+        if (cancelled) return;
+
+        // STEP 5: STRICT portal ↔ role matrix
         if (profile.role !== rule.expectedRole) {
-          setStatus('Access denied');
-
-          setError(
-            `Access denied. Your account role is "${profile.role}", but you are attempting to access the "${portalParam}" portal. Please use the correct login portal.`
-          );
-
           await supabase.auth.signOut();
-          return;
+          throw new Error(
+            `Access denied. Your account is registered as "${roleLabel(profile.role)}", ` +
+            `but you selected the "${PORTAL_LABEL[portalParam]}" portal. ` +
+            `Please sign in through the ${roleLabel(profile.role)} portal.`
+          );
         }
 
-        // STEP 6: REDIRECT BASED ON VERIFIED ROLE
+        // STEP 6: Redirect
+        setStatus('Redirecting...');
 
         if (profile.role === 'mpp_admin') {
-          setStatus('Redirecting to MPP Dashboard...');
           navigate('/mpp-dashboard', { replace: true });
           return;
         }
-
         if (profile.role === 'club_representative') {
-          setStatus('Redirecting to Club Representative Dashboard...');
           navigate('/club-dashboard', { replace: true });
           return;
         }
-
         if (profile.role === 'student') {
           const hasMatric =
             typeof profile.matric_no === 'string' &&
             profile.matric_no.trim() !== '';
-
-          if (!hasMatric) {
-            setStatus('Redirecting to onboarding...');
-            navigate('/onboarding', { replace: true });
-          } else {
-            setStatus('Redirecting to Student Dashboard...');
-            navigate('/student-dashboard', { replace: true });
-          }
-
+          navigate(hasMatric ? '/student-dashboard' : '/onboarding', {
+            replace: true,
+          });
           return;
         }
 
-        setError('Unknown account role. Please contact the administrator.');
-
+        throw new Error('Unknown account role.');
       } catch (err) {
-        console.error('Unexpected error:', err);
-        setError(err.message || 'An unexpected error occurred.');
+        if (!cancelled) {
+          console.error('AuthCallback error:', err);
+          setError(err.message || 'An unexpected error occurred.');
+        }
       }
     };
 
     run();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [navigate, searchParams]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#F6F4F5] px-4">
       <div className="flex flex-col items-center gap-6 p-10 bg-white rounded-3xl border border-[#E3DEE0] shadow-lg max-w-md w-full text-center">
-
         {!error && (
           <div className="w-12 h-12 border-4 border-[#7A1F3D] border-t-transparent rounded-full animate-spin"></div>
         )}
-
-        <h2 className="text-[#1F1A1C] text-xl font-bold font-inter">
-          {status}
-        </h2>
-
+        <h2 className="text-[#1F1A1C] text-xl font-bold font-inter">{status}</h2>
         {error && (
           <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg w-full break-words">
             {error}
           </p>
         )}
-
         {error && (
           <button
             onClick={() => navigate('/login', { replace: true })}
@@ -195,7 +163,6 @@ export default function AuthCallback() {
             ← Back to Login
           </button>
         )}
-
       </div>
     </div>
   );
